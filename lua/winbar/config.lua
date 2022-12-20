@@ -3,6 +3,7 @@ local M = {}
 M.defaults = {
     enabled = false,
 
+    path_style = '/', -- '/' or '~', or '.', or 'auto'
     show_file_path = true,
     show_symbols = true,
 
@@ -10,6 +11,7 @@ M.defaults = {
         path = '',
         file_name = '',
         symbols = '',
+        bg = '',
     },
 
     icons = {

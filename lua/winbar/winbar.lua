@@ -9,26 +9,44 @@ local hl_winbar_file = 'WinBarFile'
 local hl_winbar_symbols = 'WinBarSymbols'
 local hl_winbar_file_icon = 'WinBarFileIcon'
 
-local winbar_mode = function()
-    -- if not f.isempty(value) and f.get_buf_option('mod') then
-    --     local mod = '%#LineNr#' .. opts.editor_state .. '%*'
-    --     if gps_added then
-    --         value = value .. ' ' .. mod
-    --     else
-    --         value = value .. mod
-    --     end
-    -- end
 
-    -- value = value .. '%{%v:lua.winbar_gps()%}'
-end
 
+-- get path string
 local winbar_file = function()
     local file_path = vim.fn.expand('%:~:.:h')
+    local offset =50
+    local win_width = vim.fn.winwidth(0)
+    local full_path_len = string.len(vim.fn.expand('%:p:h')) + offset
+    local home_path_len = string.len(vim.fn.expand('%:~:h')) + offset
+
+    if opts.path_style == 'auto' then
+        if (full_path_len > win_width) then
+
+            if (home_path_len > win_width) then
+                file_path = vim.fn.expand('%:.:h')
+            else
+                file_path = vim.fn.expand('%:~:h')
+            end
+        else
+            file_path = vim.fn.expand('%:p:h')
+        end
+    elseif opts.path_style == '/' then
+        file_path = vim.fn.expand('%:p:h')
+    elseif opts.path_style == '~' then
+        file_path = vim.fn.expand('%:~:h')
+    elseif opts.path_style == '.' then
+        file_path = vim.fn.expand('%:.:h')
+    end
+
+
+
+    -- local file_path = vim.fn.expand('%:~:.:h')
     local filename = vim.fn.expand('%:t')
     local file_type = vim.fn.expand('%:e')
     local value = ''
     local file_icon = ''
 
+    -- remove '.' and '/'
     file_path = file_path:gsub('^%.', '')
     file_path = file_path:gsub('^%/', '')
 
@@ -51,6 +69,7 @@ local winbar_file = function()
 
         file_icon = '%#' .. hl_winbar_file_icon .. '#' .. file_icon .. ' %*'
 
+
         value = ' '
         if opts.show_file_path then
             local file_path_list = {}
@@ -62,13 +81,14 @@ local winbar_file = function()
                 value = value .. '%#' .. hl_winbar_path .. '#' .. file_path_list[i] .. ' ' .. opts.icons.seperator .. ' %*'
             end
         end
-        value = value .. file_icon
+        -- value = value .. file_icon
         value = value .. '%#' .. hl_winbar_file .. '#' .. filename .. '%*'
     end
 
+    value = '▊' .. value
     return value
-
 end
+
 
 local _, gps = pcall(require, 'nvim-gps')
 local winbar_gps = function()
@@ -93,22 +113,24 @@ local excludes = function()
 end
 
 M.init = function()
+    local bgcolor = opts.colors.bg
+    vim.cmd('highlight WinBar guibg='..bgcolor)
     if f.isempty(opts.colors.path) then
         hl_winbar_path = 'MsgArea'
     else
-        vim.api.nvim_set_hl(0, hl_winbar_path, { fg = opts.colors.path })
+        vim.api.nvim_set_hl(0, hl_winbar_path, { fg = opts.colors.path,italic = true,bg = bgcolor})
+        -- can also set bg
     end
-
     if f.isempty(opts.colors.file_name) then
         hl_winbar_file = 'String'
     else
-        vim.api.nvim_set_hl(0, hl_winbar_file, { fg = opts.colors.file_name })
+        vim.api.nvim_set_hl(0, hl_winbar_file, { fg = opts.colors.file_name,italic = true,bg = bgcolor })
     end
 
     if f.isempty(opts.colors.symbols) then
         hl_winbar_symbols = 'Function'
     else
-        vim.api.nvim_set_hl(0, hl_winbar_symbols, { fg = opts.colors.symbols })
+        vim.api.nvim_set_hl(0, hl_winbar_symbols, { fg = opts.colors.symbols,bg = '#ffffff'})
     end
 end
 
@@ -126,10 +148,12 @@ M.show_winbar = function()
         end
     end
 
+    --local status_ok, _ = pcall(vim.api.nvim_set_option_value, 'winbar', value, { scope = 'local' })
     local status_ok, _ = pcall(vim.api.nvim_set_option_value, 'winbar', value, { scope = 'local' })
     if not status_ok then
         return
     end
 end
+
 
 return M
