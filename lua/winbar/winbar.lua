@@ -60,7 +60,7 @@ local winbar_file = function()
 
         if status_web_devicons_ok then
             file_icon = web_devicons.get_icon(filename, file_type, { default = default })
-            hl_winbar_file_icon = "DevIcon" .. file_type
+            hl_winbar_file_icon = "WinbarDevIcon" .. file_type --好像会和nvim-tree的图标颜色冲突，换一个颜色组
         end
 
         if not file_icon then
@@ -81,14 +81,13 @@ local winbar_file = function()
                 value = value .. '%#' .. hl_winbar_path .. '#' .. file_path_list[i] .. ' ' .. opts.icons.seperator .. ' %*'
             end
         end
-        -- value = value .. file_icon
+        value = value .. file_icon
         value = value .. '%#' .. hl_winbar_file .. '#' .. filename .. '%*'
     end
 
     value = '▊' .. value
     return value
 end
-
 
 local _, gps = pcall(require, 'nvim-gps')
 local winbar_gps = function()
@@ -140,6 +139,11 @@ M.show_winbar = function()
     end
 
     local value = winbar_file()
+    -- 由于文件会变，这个颜色高亮要一直改，不能只在init里改
+    if f.isempty(opts.colors.symbols) then
+    else
+        vim.api.nvim_set_hl(0, hl_winbar_file_icon, { fg = opts.colors.icon,bg = opts.colors.bg })
+    end
 
     if opts.show_symbols then
         if not f.isempty(value) then
