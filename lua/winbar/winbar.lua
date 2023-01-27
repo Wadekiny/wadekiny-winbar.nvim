@@ -70,7 +70,7 @@ local winbar_file = function()
         file_icon = '%#' .. hl_winbar_file_icon .. '#' .. file_icon .. ' %*'
 
 
-        value = ' '
+        value = ''
         if opts.show_file_path then
             local file_path_list = {}
             local _ = string.gsub(file_path, '[^/]+', function(w)
@@ -78,14 +78,18 @@ local winbar_file = function()
             end)
 
             for i = 1, #file_path_list do
-                value = value .. '%#' .. hl_winbar_path .. '#' .. file_path_list[i] .. ' ' .. opts.icons.seperator .. ' %*'
+                if i == 1 then
+                    value = value .. '%#' .. hl_winbar_path .. '#' .. '▎ ' .. file_path_list[i] .. ' ' .. opts.icons.seperator .. ' %*'
+                else
+                    value = value .. '%#' .. hl_winbar_path .. '#' .. file_path_list[i] .. ' ' .. opts.icons.seperator .. ' %*'
+                end
             end
         end
         value = value .. file_icon
         value = value .. '%#' .. hl_winbar_file .. '#' .. filename .. '%*'
     end
 
-    value = '▊' .. value
+    -- value = '▊' .. value
     return value
 end
 
@@ -117,19 +121,19 @@ M.init = function()
     if f.isempty(opts.colors.path) then
         hl_winbar_path = 'MsgArea'
     else
-        vim.api.nvim_set_hl(0, hl_winbar_path, { fg = opts.colors.path,italic = true,bg = bgcolor})
+        vim.api.nvim_set_hl(0, hl_winbar_path, {bold=true, fg = opts.colors.path,italic = true,bg = bgcolor})
         -- can also set bg
     end
     if f.isempty(opts.colors.file_name) then
         hl_winbar_file = 'String'
     else
-        vim.api.nvim_set_hl(0, hl_winbar_file, { fg = opts.colors.file_name,italic = true,bg = bgcolor })
+        vim.api.nvim_set_hl(0, hl_winbar_file, { bold=true, fg = opts.colors.file_name,italic = true,bg = bgcolor })
     end
 
     if f.isempty(opts.colors.symbols) then
         hl_winbar_symbols = 'Function'
     else
-        vim.api.nvim_set_hl(0, hl_winbar_symbols, { fg = opts.colors.symbols,bg = '#ffffff'})
+        vim.api.nvim_set_hl(0, hl_winbar_symbols, {bold=true, fg = opts.colors.symbols,bg = '#ffffff'})
     end
 end
 
@@ -142,7 +146,7 @@ M.show_winbar = function()
     -- 由于文件会变，这个颜色高亮要一直改，不能只在init里改
     if f.isempty(opts.colors.symbols) then
     else
-        vim.api.nvim_set_hl(0, hl_winbar_file_icon, { fg = opts.colors.icon,bg = opts.colors.bg })
+        vim.api.nvim_set_hl(0, hl_winbar_file_icon, {bold=true, fg = opts.colors.icon,bg = opts.colors.bg })
     end
 
     if opts.show_symbols then
